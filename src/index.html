@@ -1,0 +1,44 @@
+<html>
+
+<head>
+	<title>WebRTC with SimplePeer</title>
+
+	<meta id="viewport" name="viewport"
+		content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover" />
+	<meta name="apple-mobile-web-app-capable" content="yes">
+
+</head>
+
+<body>
+	<noscript>Please enable JavaScript in your web browser to view this page.</noscript>
+  <style>
+      #outgoing {
+        width: 600px;
+        word-wrap: break-word;
+        white-space: normal;
+      }
+      .icon-btn {
+        font-size: 30px;
+      }
+    </style>
+    My Sick Id: <div id="myid">No ID set</div>
+    <button onclick="copyId()" class="icon-btn">✂️ </button>
+
+    <button onclick="pasteId()" class="icon-btn">📋</button>
+    <form>
+      <label for="peerid">Peer Id</label>
+      <textarea id="peerid"></textarea>
+      <br />
+      <label for="outbox">Outbox</label>
+      <textarea id="outbox"></textarea>
+      <br />
+      <label for="inbox">Inbox</label>
+      <textarea id="inbox"></textarea>
+      <br />
+      <button type="submit">Send Message to Peer</button>
+    </form>
+
+    <pre id="outgoing"></pre>
+</body>
+
+</html>
