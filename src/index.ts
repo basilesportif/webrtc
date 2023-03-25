@@ -54,6 +54,8 @@ document.querySelector('form').addEventListener('submit', ev => {
     conn.send(`${(msg)}`);
     console.log(`I sent: ${(msg)}`);
   });
+
+  conn.on('error', err => console.log(err));
   (document.getElementById('outbox') as HTMLInputElement).value = '';
 });
 
@@ -94,3 +96,5 @@ async function callUser(peerId: string) {
     console.log(err);
   });
 }
+
+peer.on('error', err => console.log(err));
