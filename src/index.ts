@@ -13,9 +13,26 @@ const signaling = new WebSocket(signalingServerUrl);
 const peerConnectionConfig = { iceServers };
 const peerConnection = new RTCPeerConnection(peerConnectionConfig);
 
-signaling.addEventListener('message', async (event) => {
-  const data = JSON.parse(event.data);
+async function blobToJson(blob) {
+  const text = await blob.text();
+  return JSON.parse(text);
+}
 
+signaling.addEventListener('error', (error) => {
+  console.error('WebSocket error:', error);
+});
+
+signaling.addEventListener('message', async (event) => {
+  console.log("here")
+  let data;
+
+  if (event.data instanceof Blob) {
+    data = await blobToJson(event.data);
+  } else {
+    data = JSON.parse(event.data);
+  }
+  console.log(data)
+/*
   if (data.type === 'offer') {
     await peerConnection.setRemoteDescription(data);
     const answer = await peerConnection.createAnswer();
@@ -27,6 +44,7 @@ signaling.addEventListener('message', async (event) => {
     const candidate = new RTCIceCandidate(data);
     await peerConnection.addIceCandidate(candidate);
   }
+*/
 });
 
 peerConnection.addEventListener('icecandidate', (event) => {
@@ -59,11 +77,7 @@ document.getElementById('start-button').addEventListener('click', async () => {
   localVideoElement.srcObject = localStream;
 
   const offer = await peerConnection.createOffer();
-  alert(JSON.stringify(offer))
   await peerConnection.setLocalDescription(offer);
 
-  console.log(offer)
-
-  console.log(JSON.stringify(offer));
   signaling.send(JSON.stringify(offer));
 });
