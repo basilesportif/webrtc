@@ -14,6 +14,10 @@ const iceServers = [
 const signalingServerUrl = 'wss://peerjs.uqbar.network:443';
 const signaling = new WebSocket(signalingServerUrl);
 
+let incomingCall = false;
+const acceptCallButton = document.getElementById('accept-call');
+const rejectCallButton = document.getElementById('reject-call');
+
 const peerConnectionConfig = { iceServers };
 const peerConnection = new RTCPeerConnection(peerConnectionConfig);
 
@@ -36,15 +40,40 @@ signaling.addEventListener('message', async (event) => {
   }
 
   console.log(data)
+  // Handle the incoming offer
+  if (data.offer && !incomingCall) {
+    incomingCall = true;
+    acceptCallButton.style.display = 'inline';
+    rejectCallButton.style.display = 'inline';
 
-  if (data.type === 'offer') {
-    await peerConnection.setRemoteDescription(data);
-    const answer = await peerConnection.createAnswer();
-    await peerConnection.setLocalDescription(answer);
-    signaling.send(JSON.stringify(answer));
-  } else if (data.type === 'answer') {
-    await peerConnection.setRemoteDescription(data);
-  } else if (data.type === 'icecandidate') {
+    // Accept the call
+    acceptCallButton.addEventListener('click', async () => {
+      incomingCall = false;
+      acceptCallButton.style.display = 'none';
+      rejectCallButton.style.display = 'none';
+
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+
+      signaling.send(JSON.stringify({ answer: answer }));
+    });
+
+    // Reject the call
+    rejectCallButton.addEventListener('click', () => {
+      incomingCall = false;
+      acceptCallButton.style.display = 'none';
+      rejectCallButton.style.display = 'none';
+
+      // Send a rejection message
+      signaling.send(JSON.stringify({ rejection: 'Call rejected' }));
+    });
+  } else if (data.answer && !incomingCall) {
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+  } else if (data.rejection) {
+    alert(data.rejection);
+  }
+   else if (data.type === 'icecandidate') {
     const candidate = new RTCIceCandidate(data.candidate);
     await peerConnection.addIceCandidate(candidate);
   }
