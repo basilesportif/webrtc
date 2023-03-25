@@ -21,6 +21,17 @@ const rejectCallButton = document.getElementById('reject-call');
 const peerConnectionConfig = { iceServers };
 const peerConnection = new RTCPeerConnection(peerConnectionConfig);
 
+const iceCandidateQueue = [];
+
+peerConnection.addEventListener('iceconnectionstatechange', () => {
+  if (peerConnection.iceConnectionState === 'completed' || peerConnection.iceConnectionState === 'connected') {
+    while (iceCandidateQueue.length) {
+      const candidate = iceCandidateQueue.shift();
+      peerConnection.addIceCandidate(candidate);
+    }
+  }
+});
+
 async function blobToJson(blob) {
   const text = await blob.text();
   return JSON.parse(text);
@@ -75,7 +86,14 @@ signaling.addEventListener('message', async (event) => {
   }
    else if (data.type === 'icecandidate') {
     const candidate = new RTCIceCandidate(data.candidate);
-    await peerConnection.addIceCandidate(candidate);
+    if (
+      peerConnection.remoteDescription &&
+      (peerConnection.remoteDescription.type === 'offer' || peerConnection.remoteDescription.type === 'answer')
+    ) {
+      await peerConnection.addIceCandidate(candidate);
+    } else {
+      iceCandidateQueue.push(candidate);
+    }
   }
 });
 
