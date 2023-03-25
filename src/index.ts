@@ -65,6 +65,7 @@ peerConnection.addEventListener('icecandidate', (event) => {
 });
 
 peerConnection.addEventListener('track', (event) => {
+  console.log("track", event)
   const remoteStream = event.streams[0];
   const remoteVideoElement = (document.getElementById('remote-video') as HTMLVideoElement);
   remoteVideoElement.srcObject = remoteStream;
