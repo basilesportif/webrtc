@@ -59,6 +59,11 @@ document.getElementById('start-button').addEventListener('click', async () => {
   localVideoElement.srcObject = localStream;
 
   const offer = await peerConnection.createOffer();
+  alert(offer)
   await peerConnection.setLocalDescription(offer);
+
+  console.log(offer)
+
+  console.log(JSON.stringify(offer));
   signaling.send(JSON.stringify(offer));
 });
