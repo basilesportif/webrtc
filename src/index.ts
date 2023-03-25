@@ -1,7 +1,21 @@
 import { Peer } from "peerjs";
 
+const iceServers = [
+  { urls: 'stun:65.21.6.180:3478' },
+  {
+    urls: 'turn:65.21.6.180:3478',
+    username: 'timtime',
+    credential: 'blahblah',
+  },
+];
+
 const id = Math.floor(Math.random() * 1000000000).toString();
-const peer = new Peer(id);
+const peer = new Peer(id, {
+  host: "65.21.6.180",
+  port: 3477,
+  secure: false,
+  config: iceServers,
+});
 console.log(peer);
 
 document.getElementById("myid").innerHTML = id;
@@ -47,3 +61,34 @@ peer.on('connection', conn => {
     console.log(data);
   });
 });
+
+/** from tutorial at https://medium.com/@otterlord/learn-peer-js-video-chat-app-bfaa0e976263
+ *
+**/
+
+//@ts-ignore
+async function callUser(peerId: string) {
+  // grab the camera and mic
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true,
+  });
+
+  // switch to the video call and play the camera preview
+  document.getElementById("menu").style.display = "none";
+  document.getElementById("live").style.display = "block";
+  const lv = (document.getElementById("local-video") as HTMLVideoElement);
+  lv.srcObject = stream;
+  lv.play();
+
+  // make the call
+  const call = peer.call(peerId, stream);
+  call.on("stream", (stream) => {
+    const rv = (document.getElementById("remote-video") as HTMLVideoElement);
+    rv.srcObject = stream;
+    rv.play();
+  });
+  call.on("error", (err) => {
+    console.log(err);
+  });
+}

@@ -12,14 +12,58 @@
 <body>
 	<noscript>Please enable JavaScript in your web browser to view this page.</noscript>
   <style>
-      #outgoing {
-        width: 600px;
-        word-wrap: break-word;
-        white-space: normal;
-      }
-      .icon-btn {
-        font-size: 30px;
-      }
+    #outgoing {
+      width: 600px;
+      word-wrap: break-word;
+      white-space: normal;
+    }
+
+    .icon-btn {
+      font-size: 30px;
+    }
+
+    #live {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    display: none;
+  }
+
+  #local-video {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 250px;
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+    margin: 16px;
+    border: 2px solid #fff;
+  }
+
+  #remote-video {
+    position: absolute;
+    max-width: 100%;
+    height: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  #end-call {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 8px;
+    background-color: red;
+    color: white;
+    border: none;
+    margin: 16px;
+  }
     </style>
     My Sick Id: <div id="myid">No ID set</div>
     <button onclick="copyId()" class="icon-btn">✂️ </button>
@@ -38,7 +82,11 @@
       <button type="submit">Send Message to Peer</button>
     </form>
 
-    <pre id="outgoing"></pre>
+    <div id="live">
+      <video id="remote-video"></video>
+      <video id="local-video" muted="true"></video>
+      <button id="end-call" onclick="endCall()">End Call</button>
+    </div>
 </body>
 
 </html>
