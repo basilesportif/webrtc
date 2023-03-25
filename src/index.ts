@@ -50,6 +50,8 @@ document.querySelector('form').addEventListener('submit', ev => {
     return;
   }
   const conn = peer.connect(peerId);
+  conn.on('error', err => console.log(err));
+
   conn.on('open', () => {
     conn.send(`${(msg)}`);
     console.log(`I sent: ${(msg)}`);
