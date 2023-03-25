@@ -9,19 +9,20 @@ const iceServers = [
   },
 ];
 
+
 const r = Math.floor(Math.random() * 10).toString();
 const id = document.location.hash == "" ? "4" + r : "5" + r;
 
 const peer = new Peer(id, {
-  host: "peerjs.uqbar.network",
-  port: 443,
-  secure: true,
+  //host: "peerjs.uqbar.network",
+  //port: 443,
+  //secure: true,
   config: iceServers,
 });
+
 console.log(peer);
 
 document.getElementById("myid").innerHTML = id;
-console.log(document.getElementById("myid"));
 
 //@ts-ignore
 window.copyId = () => {
@@ -52,6 +53,8 @@ document.querySelector('form').addEventListener('submit', ev => {
   const conn = peer.connect(peerId);
   conn.on('error', err => console.log(err));
 
+  // todo: it's never getting the open message. Need to see what's happening
+  // on the TURN server directly
   conn.on('open', () => {
     conn.send(`${(msg)}`);
     console.log(`I sent: ${(msg)}`);
@@ -62,6 +65,16 @@ document.querySelector('form').addEventListener('submit', ev => {
 });
 
 peer.on('connection', conn => {
+  const rtcPeerConnection = conn.peerConnection;
+
+  rtcPeerConnection.addEventListener('icecandidate', event => {
+    const iceCandidate = event.candidate;
+    if (iceCandidate) {
+      console.log('ICE Candidate:', iceCandidate);
+    } else {
+      console.log('All ICE Candidates gathered.');
+    }
+  });
   conn.on('data', data => {
     document.getElementById('inbox').innerHTML = (data as string);
     console.log(data);
