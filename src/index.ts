@@ -1,23 +1,22 @@
 import { Peer } from "peerjs";
 
-const iceServers = [
+const r = Math.floor(Math.random() * 10).toString();
+const id = document.location.hash == "" ? "4" + r : "5" + r;
+
+const peer = new Peer({
+  host: "peerjs.uqbar.network",
+  port: 443,
+  secure: true,
+  config: {
+    iceServers: [
   { urls: 'stun:65.21.6.180:3478' },
   {
     urls: 'turn:65.21.6.180:3478',
     username: 'timtime',
     credential: 'blahblah',
   },
-];
-
-
-const r = Math.floor(Math.random() * 10).toString();
-const id = document.location.hash == "" ? "4" + r : "5" + r;
-
-const peer = new Peer(id, {
-  //host: "peerjs.uqbar.network",
-  //port: 443,
-  //secure: true,
-  config: iceServers,
+],
+  }
 });
 
 console.log(peer);
