@@ -1,5 +1,4 @@
 const iceServers = [
-  { urls: 'stun:65.21.6.180:3478' },
   {
     urls: 'turn:65.21.6.180:3478',
     username: 'timtime',
@@ -23,7 +22,6 @@ signaling.addEventListener('error', (error) => {
 });
 
 signaling.addEventListener('message', async (event) => {
-  console.log("here")
   let data;
 
   if (event.data instanceof Blob) {
@@ -31,7 +29,6 @@ signaling.addEventListener('message', async (event) => {
   } else {
     data = JSON.parse(event.data);
   }
-  console.log(data)
 
   if (data.type === 'offer') {
     await peerConnection.setRemoteDescription(data);
@@ -44,6 +41,10 @@ signaling.addEventListener('message', async (event) => {
     const candidate = new RTCIceCandidate(data);
     await peerConnection.addIceCandidate(candidate);
   }
+});
+
+peerConnection.addEventListener('icecandidateerror', (event) => {
+  console.error('ICE candidate error:', event);
 });
 
 peerConnection.addEventListener('icecandidate', (event) => {
