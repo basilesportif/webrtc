@@ -9,7 +9,9 @@ const iceServers = [
   },
 ];
 
-const id = Math.floor(Math.random() * 1000000000).toString();
+const r = Math.floor(Math.random() * 10).toString();
+const id = document.location.hash == "" ? "4" + r : "5" + r;
+
 const peer = new Peer(id, {
   host: "65.21.6.180",
   port: 3477,
