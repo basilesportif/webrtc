@@ -1,3 +1,14 @@
+const clientIdInput = (document.getElementById('client-id') as HTMLInputElement);
+const hash = window.location.hash.substring(1);
+if (hash) {
+  clientIdInput.value = hash;
+}
+
+const clientId = () => (document.getElementById('client-id') as HTMLInputElement).value;
+
+let remoteOffer = null;
+let remoteStream = null;
+
 const iceServers = [
   {
     urls: 'stun:65.21.6.180:3478',
@@ -41,6 +52,32 @@ signaling.addEventListener('error', (error) => {
   console.error('WebSocket error:', error);
 });
 
+// Accept the call
+acceptCallButton.addEventListener('click', async () => {
+  if (!incomingCall) return;
+  incomingCall = false;
+  acceptCallButton.style.display = 'none';
+  rejectCallButton.style.display = 'none';
+
+  await peerConnection.setRemoteDescription(new RTCSessionDescription(remoteOffer));
+  const answer = await peerConnection.createAnswer();
+  await peerConnection.setLocalDescription(answer);
+
+  signaling.send(JSON.stringify({ clientId: clientId(), answer }));
+});
+
+// Reject the call
+rejectCallButton.addEventListener('click', () => {
+  if (!incomingCall) return;
+  incomingCall = false;
+  acceptCallButton.style.display = 'none';
+  rejectCallButton.style.display = 'none';
+
+  // Send a rejection message
+  clientId();
+  signaling.send(JSON.stringify({ clientId: clientId(), rejection: 'Call rejected' }));
+});
+
 signaling.addEventListener('message', async (event) => {
   let data;
 
@@ -51,35 +88,19 @@ signaling.addEventListener('message', async (event) => {
   }
 
   console.log(data)
-  // Handle the incoming offer
+
+  clientId();
+  if (data.clientId === clientId) {
+    return; // Ignore messages from the same client
+  }
+
   if (data.offer && !incomingCall) {
     incomingCall = true;
+    remoteOffer = data.offer; // Store the remote offer
     acceptCallButton.style.display = 'inline';
     rejectCallButton.style.display = 'inline';
-
-    // Accept the call
-    acceptCallButton.addEventListener('click', async () => {
-      incomingCall = false;
-      acceptCallButton.style.display = 'none';
-      rejectCallButton.style.display = 'none';
-
-      await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
-      const answer = await peerConnection.createAnswer();
-      await peerConnection.setLocalDescription(answer);
-
-      signaling.send(JSON.stringify({ answer: answer }));
-    });
-
-    // Reject the call
-    rejectCallButton.addEventListener('click', () => {
-      incomingCall = false;
-      acceptCallButton.style.display = 'none';
-      rejectCallButton.style.display = 'none';
-
-      // Send a rejection message
-      signaling.send(JSON.stringify({ rejection: 'Call rejected' }));
-    });
   } else if (data.answer && !incomingCall) {
+    console.log("answer", data.answer)
     await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
   } else if (data.rejection) {
     alert(data.rejection);
@@ -104,18 +125,18 @@ peerConnection.addEventListener('icecandidateerror', (event) => {
 peerConnection.addEventListener('icecandidate', (event) => {
   const candidate = event.candidate;
 
+  clientId();
   if (candidate) {
     signaling.send(
-      JSON.stringify({ type: 'icecandidate', candidate: candidate }),
+      JSON.stringify({ clientId: clientId(), type: 'icecandidate', candidate: candidate }),
     );
   }
 });
 
 peerConnection.addEventListener('track', (event) => {
-  console.log("track", event)
-  const remoteStream = event.streams[0];
-  const remoteVideoElement = (document.getElementById('remote-video') as HTMLVideoElement);
-  remoteVideoElement.srcObject = remoteStream;
+  // Make sure the remote stream is being updated correctly
+  const remoteVideo = (document.getElementById('remote-video') as HTMLVideoElement);
+  remoteVideo.srcObject = event.streams[0];
 });
 
 document.getElementById('start-button').addEventListener('click', async () => {
@@ -134,5 +155,6 @@ document.getElementById('start-button').addEventListener('click', async () => {
   const offer = await peerConnection.createOffer();
   await peerConnection.setLocalDescription(offer);
 
-  signaling.send(JSON.stringify(offer));
+  clientId();
+  signaling.send(JSON.stringify({ clientId: clientId(), offer }));
 });

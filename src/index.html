@@ -7,13 +7,27 @@
 		content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover" />
 	<meta name="apple-mobile-web-app-capable" content="yes">
 
+  <style>
+    video {
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+      object-fit: cover;
+      margin: 10px;
+      border: 1px solid #ccc;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+
 </head>
 
 <body>
 	<noscript>Please enable JavaScript in your web browser to view this page.</noscript>
   <video id="local-video" autoplay muted playsinline></video>
-  <video id="remote-video" autoplay playsinline></video>
+  <video id="remote-video" autoplay muted playsinline></video>
   <button id="start-button">Start Call</button>
+
+  <input type="text" id="client-id" placeholder="Enter a unique client ID">
   <button id="accept-call" style="display:none;">Accept Call</button>
   <button id="reject-call" style="display:none;">Reject Call</button>
 
