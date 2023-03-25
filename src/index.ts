@@ -60,6 +60,5 @@ document.getElementById('start-button').addEventListener('click', async () => {
 
   const offer = await peerConnection.createOffer();
   await peerConnection.setLocalDescription(offer);
-  console.log(offer)
   signaling.send(JSON.stringify(offer));
 });
