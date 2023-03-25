@@ -32,7 +32,7 @@ signaling.addEventListener('message', async (event) => {
     data = JSON.parse(event.data);
   }
   console.log(data)
-/*
+
   if (data.type === 'offer') {
     await peerConnection.setRemoteDescription(data);
     const answer = await peerConnection.createAnswer();
@@ -44,7 +44,6 @@ signaling.addEventListener('message', async (event) => {
     const candidate = new RTCIceCandidate(data);
     await peerConnection.addIceCandidate(candidate);
   }
-*/
 });
 
 peerConnection.addEventListener('icecandidate', (event) => {
